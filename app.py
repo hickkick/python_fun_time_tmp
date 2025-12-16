@@ -32,13 +32,14 @@ app.layout = html.Div([
     html.Label("Select Report Type:"),
 
     dcc.Dropdown(
-        id="report-type-dropdown",
-        options=[
-            {"label": "Recession Report", "value": "recession"},
-            {"label": "Yearly Report", "value": "yearly"}
-        ],
-        value="recession",
-        clearable=False
+    id="report-type-dropdown",
+    options=[
+        {"label": "Recession Report", "value": "recession"},
+        {"label": "Yearly Report", "value": "yearly"}
+    ],
+    value=None,
+    placeholder="Select Report Type",
+    clearable=False
     ),
 
     html.Br(),
@@ -60,6 +61,11 @@ app.layout = html.Div([
 )
 def update_dashboard(selected_report):
 
+    if selected_report is None:
+        return html.Div(
+            "Please select a report type from the dropdown above.",
+            style={"textAlign": "center", "fontSize": "18px"}
+        )
     # -----------------------
     # Recession Report (TASK 2.5)
     # -----------------------
