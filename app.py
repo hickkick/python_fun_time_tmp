@@ -42,6 +42,8 @@ app.layout = html.Div([
     clearable=False
     ),
 
+    dcc.Store(id="report-store"),
+
     html.Br(),
 
     html.Div(
@@ -56,20 +58,32 @@ app.layout = html.Div([
 # -----------------------
 
 @app.callback(
-    Output("output-container", "children"),
+    Output("report-store", "data"),
     Input("report-type-dropdown", "value")
 )
-def update_dashboard(selected_report):
+def update_report_state(selected_report):
+    return selected_report
 
-    if selected_report is None:
+@app.callback(
+    Output("output-container", "children"),
+    Input("report-store", "data")
+)
+def render_dashboard(report_type):
+
+    if report_type is None:
         return html.Div(
             "Please select a report type from the dropdown above.",
-            style={"textAlign": "center", "fontSize": "18px"}
+            style={
+                "textAlign": "center",
+                "fontSize": "18px",
+                "marginTop": "40px"
+            }
         )
+
     # -----------------------
-    # Recession Report (TASK 2.5)
+    # Recession Report
     # -----------------------
-    if selected_report == "recession":
+    if report_type == "recession":
 
         fig1 = px.bar(
             recession_data,
@@ -82,16 +96,36 @@ def update_dashboard(selected_report):
             recession_data,
             names="Vehicle_Type",
             values="Sales",
-            title="Sales Distribution by Vehicle Type (Recession)"
+            title="Sales Distribution by Vehicle Type"
         )
 
-        return [
-            dcc.Graph(figure=fig1),
-            dcc.Graph(figure=fig2)
-        ]
+        return html.Div([
+
+            html.H3(
+                "Recession Report Analysis",
+                style={"textAlign": "center", "marginBottom": "20px"}
+            ),
+
+            html.Div(
+                [
+                    html.Div(
+                        dcc.Graph(figure=fig1),
+                        style={"width": "50%", "padding": "10px"}
+                    ),
+                    html.Div(
+                        dcc.Graph(figure=fig2),
+                        style={"width": "50%", "padding": "10px"}
+                    )
+                ],
+                style={
+                    "display": "flex",
+                    "justifyContent": "center"
+                }
+            )
+        ])
 
     # -----------------------
-    # Yearly Report (TASK 2.6)
+    # Yearly Report
     # -----------------------
     else:
 
@@ -102,8 +136,15 @@ def update_dashboard(selected_report):
             title="Yearly Automobile Sales Trend"
         )
 
-        return dcc.Graph(figure=fig)
+        return html.Div([
 
+            html.H3(
+                "Yearly Report Analysis",
+                style={"textAlign": "center", "marginBottom": "20px"}
+            ),
+
+            dcc.Graph(figure=fig)
+        ])
 
 # -----------------------
 # Run app
