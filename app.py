@@ -132,54 +132,52 @@ def update_output_container(selected_statistics, input_year):
         # TASK 2.5: Create graphs for Recession Report
         recession_data = df[df['Recession'] == 1]
         
-        # Графік 1: Середні продажі по типу авто під час рецесії
-        avg_sales = recession_data.groupby('Vehicle_Type')['Automobile_Sales'].mean().reset_index()
+        # Графік 1: Line chart - Automobile sales over time during recession
+        yearly_rec = recession_data.groupby('Year')['Automobile_Sales'].mean().reset_index()
         R_chart1 = dcc.Graph(
+            figure=px.line(
+                yearly_rec,
+                x='Year',
+                y='Automobile_Sales',
+                title="Average Automobile Sales fluctuation over Recession Period",
+                markers=True
+            )
+        )
+        
+        # Графік 2: Bar chart - Average sales by vehicle type
+        avg_sales = recession_data.groupby('Vehicle_Type')['Automobile_Sales'].mean().reset_index()
+        R_chart2 = dcc.Graph(
             figure=px.bar(
                 avg_sales,
                 x='Vehicle_Type',
                 y='Automobile_Sales',
-                title="Average Automobile Sales by Vehicle Type during Recession",
-                color='Vehicle_Type',
-                labels={'Automobile_Sales': 'Average Sales'}
+                title="Average Number of Vehicles Sold by Vehicle Type during Recession",
+                color='Vehicle_Type'
             )
         )
         
-        # Графік 2: Динаміка продажів по роках під час рецесії
-        avg_sales_year = recession_data.groupby('Year')['Automobile_Sales'].mean().reset_index()
-        R_chart2 = dcc.Graph(
-            figure=px.line(
-                avg_sales_year,
-                x='Year',
-                y='Automobile_Sales',
-                title="Average Automobile Sales during Recession Period",
-                markers=True,
-                labels={'Automobile_Sales': 'Average Sales'}
-            )
-        )
-        
-        # Графік 3: Розподіл рекламних витрат по типу авто
-        exp_data = recession_data.groupby('Vehicle_Type')['Advertising_Expenditure'].sum().reset_index()
+        # Графік 3: Pie chart - Advertising Expenditure share
+        exp_rec = recession_data.groupby('Vehicle_Type')['Advertising_Expenditure'].sum().reset_index()
         R_chart3 = dcc.Graph(
             figure=px.pie(
-                exp_data,
+                exp_rec,
                 values='Advertising_Expenditure',
                 names='Vehicle_Type',
-                title="Advertising Expenditure Share by Vehicle Type during Recession",
-                hole=0.3
+                title="Total Advertising Expenditure Share by Vehicle Type during Recession"
             )
         )
         
-        # Графік 4: Вплив безробіття на продажі по типу авто
-        unemp_data = recession_data.groupby('Vehicle_Type')['unemployment_rate'].mean().reset_index()
+        # Графік 4: Bar chart - Effect of unemployment on vehicle type
+        unemp_effect = recession_data.groupby(['Year', 'Vehicle_Type'])['unemployment_rate'].mean().reset_index()
         R_chart4 = dcc.Graph(
             figure=px.bar(
-                unemp_data,
-                x='Vehicle_Type',
-                y='unemployment_rate',
-                title="Average Unemployment Rate by Vehicle Type during Recession",
-                color='Vehicle_Type',
-                labels={'unemployment_rate': 'Avg Unemployment Rate (%)'}
+                unemp_effect,
+                x='unemployment_rate',
+                y='Vehicle_Type',
+                color='Year',
+                orientation='h',
+                title="Effect of Unemployment Rate on Vehicle Type and Sales during Recession",
+                labels={'unemployment_rate': 'Unemployment Rate'}
             )
         )
         
@@ -192,20 +190,19 @@ def update_output_container(selected_statistics, input_year):
         # TASK 2.6: Create graphs for Yearly Report
         yearly_data = df[df['Year'] == input_year]
         
-        # Графік 1: Тренд річних продажів (всі роки)
+        # Графік 1: Line chart - Yearly sales trend
         yearly_trend = df.groupby('Year')['Automobile_Sales'].mean().reset_index()
         Y_chart1 = dcc.Graph(
             figure=px.line(
                 yearly_trend,
                 x='Year',
                 y='Automobile_Sales',
-                title="Yearly Automobile Sales Trend (All Years)",
-                markers=True,
-                labels={'Automobile_Sales': 'Average Sales'}
+                title=f"Yearly Automobile Sales for the year {input_year}",
+                markers=True
             )
         )
         
-        # Графік 2: Місячні продажі за обраний рік
+        # Графік 2: Line chart - Monthly sales for selected year
         monthly_sales = yearly_data.groupby('Month')['Automobile_Sales'].sum().reset_index()
         Y_chart2 = dcc.Graph(
             figure=px.line(
@@ -213,33 +210,30 @@ def update_output_container(selected_statistics, input_year):
                 x='Month',
                 y='Automobile_Sales',
                 title=f"Total Monthly Automobile Sales in {input_year}",
-                markers=True,
-                labels={'Automobile_Sales': 'Total Sales', 'Month': 'Month'}
+                markers=True
             )
         )
         
-        # Графік 3: Середні продажі по типу авто за рік
+        # Графік 3: Bar chart - Average vehicles sold by type
         avg_veh = yearly_data.groupby('Vehicle_Type')['Automobile_Sales'].mean().reset_index()
         Y_chart3 = dcc.Graph(
             figure=px.bar(
                 avg_veh,
                 x='Vehicle_Type',
                 y='Automobile_Sales',
-                title=f"Average Vehicles Sold by Type in {input_year}",
-                color='Vehicle_Type',
-                labels={'Automobile_Sales': 'Average Sales'}
+                title=f"Average Vehicles Sold by Vehicle Type in {input_year}",
+                color='Vehicle_Type'
             )
         )
         
-        # Графік 4: Рекламні витрати по типу авто
+        # Графік 4: Pie chart - Advertising Expenditure
         adv_exp = yearly_data.groupby('Vehicle_Type')['Advertising_Expenditure'].sum().reset_index()
         Y_chart4 = dcc.Graph(
             figure=px.pie(
                 adv_exp,
                 values='Advertising_Expenditure',
                 names='Vehicle_Type',
-                title=f"Advertising Expenditure Share by Vehicle Type in {input_year}",
-                hole=0.3
+                title=f"Total Advertising Expenditure by Vehicle Type in {input_year}"
             )
         )
         
